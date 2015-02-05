@@ -1,0 +1,203 @@
+Ver 0.5 
+20141116
+常用公式：
+
+
+/*-----------------------------------------------------------------------------------------*/
+
+void calc_phi(int n)        //求1--n的欧拉函数，phi[i]=φ(i)
+{
+    for (int i=2;i<=n;i++)
+        phi[i]=0;
+    phi[1]=1;
+    for (int i=2;i<=n;i++)
+        if (!phi[i])
+            for (int j=i;j<=n;j+=i)
+            {
+                if (!phi[j])    phi[j]=j;
+                phi[j]=phi[j]/i*(i-1);
+            }
+}
+/*-----------------------------------------------------------------------------------------*/
+
+void calc_fac(LL n)      //求1--n的阶乘，fa[i]=i!
+{
+    fa[0]=1;
+    for (LL i=1;i<=n;i++)
+        fa[i]=fa[i-1]*i%MOD;
+}
+
+/*-----------------------------------------------------------------------------------------*/
+
+void calc_inv(LL n)      //求1--n关于MOD的逆元，inv[i]=i的逆元
+{
+    inv[1] = 1;
+    for(int i=2;i<n;i++)        
+    {
+        if(i >= MOD) break;
+        inv[i] = (MOD - MOD / i) * inv[MOD % i] % MOD;
+    }
+}
+
+/*-----------------------------------------------------------------------------------------*/
+
+int extend_gcd(int a,int b,int &x,int &y){	//扩展欧几里得，求解a*x+b*y=gcd(a,b)，返回值为gcd(a,b)
+     if (b==0){
+         x=1;y=0;
+         return a;
+     }
+     else{
+         int r=extend_gcd(b,a%b,y,x);
+         y=y-x*(a/b);
+         return r;
+     }
+ }
+ 
+ int CRT(int a[],int m[],int n)			//中国剩余定理，返回方程x≡a[1..n] (mod m[1..n])的解x
+ {
+     int M=1;
+     for (int i=1;i<=n;i++) M*=m[i];
+     int ret=0;
+     for (int i=1;i<=n;i++)
+     {
+         int x,y;
+         int tm=M/m[i];
+         extend_gcd(tm,m[i],x,y);
+         ret=(ret+tm*x*a[i])%M;
+     }
+     return (ret+M)%M;
+ }
+
+/*-----------------------------------------------------------------------------------------*/
+
+int gcd(int a,int b){  				//辗转相除法，返回gcd(a,b)
+        if (b==0) return a;  
+        return gcd(b,a%b);  
+    }  
+
+/*-----------------------------------------------------------------------------------------*/
+
+    int extgcd(int a,int b,int& x,int& y){  	//扩展欧几里得，求解a*x+b*y=gcd(a,b)，返回值为gcd(a,b)
+        int d=a;  
+        if (b!=0){  
+            d=extgcd(b,a%b,y,x);  
+            y-=(a/b)*x;  
+        }else{  
+            x=1;y=0;  
+        }  
+        return d;  
+    }
+
+/*-----------------------------------------------------------------------------------------*/
+
+typedef unsigned long int ULL;
+typedef vector<ULL> vec;
+typedef vector<vec> mat;		//矩阵类型
+const ULL P=10000;
+
+mat mul(mat &A,mat &B)      //矩阵A*矩阵B
+{
+    mat C(A.size(),vec(B[0].size()));
+    for (int i=0;i<(int)A.size();i++)
+    {
+        for (int k=0;k<(int)B.size();k++)
+        {
+            for (int j=0;j<(int)B[0].size();j++)
+            {
+                C[i][j]=(C[i][j]+A[i][k]*B[k][j])%P;	//每个元素都对P取模
+            }
+        }
+    }
+    return C;
+}
+
+mat m_pow(mat A,int m)      //矩阵快速幂，返回矩阵A的m次方
+{
+    mat B(A.size(),vec(A.size()));
+    for (int i=0;i<(int)A.size();i++)
+        B[i][i]=1;
+    while (m>0)
+    {
+        if (m&1)    B=mul(B,A);
+        A=mul(A,A);
+        m>>=1;
+    }
+    return B;
+}
+
+/*-----------------------------------------------------------------------------------------*/
+
+LL pow_mod(LL p, LL k,int mod)       //快速幂，返回(p^k)%mod
+{
+    LL ans = 1;
+    while(k) {
+        if (k & 1) ans = ans * p % mod;
+        p = (LL)p*p % mod;
+        k >>= 1;
+    }
+    return ans;
+}
+
+/*-----------------------------------------------------------------------------------------*/
+
+void isprime(LL n)     //求1--n的质数。pr[i]=1 : i is a prime
+{
+    memset(pr,true,sizeof(pr));
+    LL m=sqrt(n+0.5);
+    pr[1]=false;
+    for (LL i=2;i<=m;i++)
+        if (pr[i])
+        {
+            for (LL j=i*i;j<=n;j+=i)
+                pr[j]=false;
+        }
+}
+
+/*-----------------------------------------------------------------------------------------*/
+
+void Moblus()				//莫比乌斯反演，mu[i]为莫比乌斯函数
+{
+    memset(check,false,sizeof(check));
+    mu[1] = 1;
+    int tot = 0;
+    for(int i = 2; i <= MMX; i++)
+    {
+        if( !check[i] )
+        {
+            prime[tot++] = i;
+            mu[i] = -1;
+        }
+        for(int j = 0; j < tot; j++)
+        {
+            if(i * prime[j] > MMX) break;
+            check[i * prime[j]] = true;
+            if( i % prime[j] == 0)
+            {
+                mu[i * prime[j]] = 0;
+                break;
+            }
+            else
+            {
+                mu[i * prime[j]] = -mu[i];
+            }
+        }
+    }
+    msum[1]=mu[1];				//求和，求G的时候用
+    for (int i=2;i<=MMX;i++)
+        msum[i]=msum[i-1]+mu[i];
+}
+
+LL G(int n,int m)           //G(x,y)表示有多少组x<=n，y<=m，且x,y互质  （(x,y)和(y,x)算两组）
+{
+    LL ans = 0;
+    if(n > m)   swap(n,m);
+    for(int i = 1, la = 0; i <= n; i = la+1)
+    {
+        la = min(n/(n/i),m/(m/i));
+        ans += (LL)(msum[la] - msum[i-1])*(n/i)*(m/i);      //事先预处理：msum[n]=SUM(mu[1..n])
+    }
+    return ans;
+}
+
+/*-----------------------------------------------------------------------------------------*/
+
