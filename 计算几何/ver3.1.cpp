@@ -31,7 +31,14 @@ using namespace std;
 const double eps=1e-8;
 const double pi=acos(-1.0);
 const double inf=1e20;
-const int maxp=1111;
+const int maxp=10010;	//多边形内点的数量，注意按需求调整
+
+int sgn(double x)
+{
+    if (fabs(x)<eps)    return 0;
+    if (x<0)    return -1;
+        else return 1;
+}
 
 int dblcmp(double d)
 {
@@ -40,7 +47,6 @@ int dblcmp(double d)
 }
 
 inline double sqr(double x){return x*x;}
-
 struct point
 {
     double x,y;
@@ -63,6 +69,32 @@ struct point
     {
         return dblcmp(a.x-x)==0?dblcmp(y-a.y)<0:x<a.x;
     }
+    
+    point operator +(const point &b)const
+    {
+        return point(x+b.x,y+b.y);
+    }
+    point operator -(const point &b)const
+    {
+        return point(x-b.x,y-b.y);
+    }
+    point operator *(const double &k)const
+    {
+        return point(x*k,y*k);
+    }
+    point operator /(const double &k)const
+    {
+        return point(x/k,y/k);
+    }
+    double operator ^(const point &b)const
+    {
+        return point(x*b.y-y*b.x);
+    }
+    double operator *(const point &b)const
+    {
+        return x*b.x+y*b.y;
+    }
+
     double len()
     {
         return hypot(x,y);
@@ -909,6 +941,27 @@ struct polygon
         return -1;
     }
 };
+
+
+    //ADD
+    //直线切凸多边形
+    //多边形是逆时针的，在q1q2的左侧
+    //HDU3982
+    vector<point> convexcut(const vector<point> &ps,point q1,point q2)
+    {
+        vector<point> qs;
+        int n=ps.size();
+        for (int i=0;i<n;i++)
+        {
+            point p1=ps[i],p2=ps[(i+1)%n];
+            int d1=sgn((q2-q1)^(p1-q1)),d2=sgn((q2-q1)^(p2-q1));
+            if (d1>=0)  
+                qs.push_back(p1);
+            if (d1*d2<0)
+                qs.push_back(line(p1,p2).crosspoint(line(q1,q2)));
+        }
+        return qs;
+    }
 
 struct polygons
 {
