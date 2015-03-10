@@ -1,0 +1,39 @@
+//hdu5183
+
+const int HASH = 1000007;
+struct HASHMAP
+{
+    int head[HASH],next[MAXN],size;
+    long long state[MAXN];
+    void init()
+    {
+        size = 0;
+        memset(head,-1,sizeof(head));
+    }
+    bool check(long long val){
+        int h = (val%HASH+HASH)%HASH;
+        for(int i = head[h];i != -1;i = next[i])
+            if(val == state[i])
+                return true;
+        return false;
+    }
+    int insert(long long val)
+    {
+        int h = (val%HASH+HASH)%HASH;
+        for(int i = head[h]; i != -1;i = next[i])
+            if(val == state[i])
+            {
+                return 1;
+            }
+        state[size] = val;
+        next[size] = head[h];
+        head[h] = size++;
+        return 0;
+    }
+} H1,H2;
+
+//init：初始化　　insert：插入　　check：查找是否存在
+
+
+by kuangbin
+Orz
