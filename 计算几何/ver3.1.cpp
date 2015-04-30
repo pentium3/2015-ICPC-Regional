@@ -31,7 +31,7 @@ using namespace std;
 const double eps=1e-8;
 const double pi=acos(-1.0);
 const double inf=1e20;
-const int maxp=10010;	//¶à±ßĞÎÄÚµãµÄÊıÁ¿£¬×¢Òâ°´ĞèÇóµ÷Õû
+const int maxp=10010;	//å¤šè¾¹å½¢å†…ç‚¹çš„æ•°é‡ï¼Œæ³¨æ„æŒ‰éœ€æ±‚è°ƒæ•´
 
 int sgn(double x)
 {
@@ -88,7 +88,7 @@ struct point
     }
     double operator ^(const point &b)const
     {
-        return point(x*b.y-y*b.x);
+        return x*b.y-y*b.x;
     }
     double operator *(const point &b)const
     {
@@ -151,7 +151,7 @@ struct point
     {
         return point(y,-x);
     }
-    point rotate(point p,double angle)//ÈÆµãpÄæÊ±ÕëĞı×ªangle½Ç¶È
+    point rotate(point p,double angle)//ç»•ç‚¹pé€†æ—¶é’ˆæ—‹è½¬angleè§’åº¦
     {
         point v=this->sub(p);
         double c=cos(angle),s=sin(angle);
@@ -172,7 +172,7 @@ struct line
     {
         return (a==v.a)&&(b==v.b);
     }
-    //ÇãĞ±½Çangle
+    //å€¾æ–œè§’angle
     line(point p,double angle)
     {
         a=p;
@@ -217,17 +217,17 @@ struct line
     {
         return a.distance(b);
     }
-    double angle()//Ö±ÏßÇãĞ±½Ç 0<=angle<180
+    double angle()//ç›´çº¿å€¾æ–œè§’ 0<=angle<180
     {
         double k=atan2(b.y-a.y,b.x-a.x);
         if (dblcmp(k)<0)k+=pi;
         if (dblcmp(k-pi)==0)k-=pi;
         return k;
     }
-    //µãºÍÏß¶Î¹ØÏµ
-    //1 ÔÚÄæÊ±Õë
-    //2 ÔÚË³Ê±Õë
-    //3 Æ½ĞĞ
+    //ç‚¹å’Œçº¿æ®µå…³ç³»
+    //1 åœ¨é€†æ—¶é’ˆ
+    //2 åœ¨é¡ºæ—¶é’ˆ
+    //3 å¹³è¡Œ
     int relation(point p)
     {
         int c=dblcmp(p.sub(a).det(b.sub(a)));
@@ -243,9 +243,9 @@ struct line
     {
         return dblcmp(b.sub(a).det(v.b.sub(v.a)))==0;
     }
-    //2 ¹æ·¶Ïà½»
-    //1 ·Ç¹æ·¶Ïà½»
-    //0 ²»Ïà½»
+    //2 è§„èŒƒç›¸äº¤
+    //1 éè§„èŒƒç›¸äº¤
+    //0 ä¸ç›¸äº¤
     int segcrossseg(line v)
     {
         int d1=dblcmp(b.sub(a).det(v.a.sub(a)));
@@ -265,9 +265,9 @@ struct line
         if ((d1^d2)==-2)return 2;
         return (d1==0||d2==0);
     }
-    //0 Æ½ĞĞ
-    //1 ÖØºÏ
-    //2 Ïà½»
+    //0 å¹³è¡Œ
+    //1 é‡åˆ
+    //2 ç›¸äº¤
     int linecrossline(line v)
     {
         if ((*this).parallel(v))
@@ -345,12 +345,12 @@ struct circle
     p(_p),r(_r){};
     circle(double x,double y,double _r):
     p(point(x,y)),r(_r){};
-    circle(point a,point b,point c)//Èı½ÇĞÎµÄÍâ½ÓÔ²
+    circle(point a,point b,point c)//ä¸‰è§’å½¢çš„å¤–æ¥åœ†
     {
         p=line(a.add(b).div(2),a.add(b).div(2).add(b.sub(a).rotleft())).crosspoint(line(c.add(b).div(2),c.add(b).div(2).add(b.sub(c).rotleft())));
         r=p.distance(a);
     }
-    circle(point a,point b,point c,bool t)//Èı½ÇĞÎµÄÄÚÇĞÔ²
+    circle(point a,point b,point c,bool t)//ä¸‰è§’å½¢çš„å†…åˆ‡åœ†
     {
         line u,v;
         double m=atan2(b.y-a.y,b.x-a.x),n=atan2(c.y-a.y,c.x-a.x);
@@ -387,9 +387,9 @@ struct circle
     {
         return 2*pi*r;
     }
-    //0 Ô²Íâ
-    //1 Ô²ÉÏ
-    //2 Ô²ÄÚ
+    //0 åœ†å¤–
+    //1 åœ†ä¸Š
+    //2 åœ†å†…
     int relation(point b)
     {
         double dst=b.distance(p);
@@ -411,7 +411,7 @@ struct circle
         if (dblcmp(dst-r)==0)return 1;
         return 0;
     }
-    //¹ıa bÁ½µã °ë¾¶rµÄÁ½¸öÔ²
+    //è¿‡a bä¸¤ç‚¹ åŠå¾„rçš„ä¸¤ä¸ªåœ†
     int getcircle(point a,point b,double r,circle&c1,circle&c2)
     {
         circle x(a,r),y(b,r);
@@ -420,7 +420,7 @@ struct circle
         c1.r=c2.r=r;
         return t;
     }
-    //ÓëÖ±ÏßuÏàÇĞ ¹ıµãq °ë¾¶r1µÄÔ²
+    //ä¸ç›´çº¿uç›¸åˆ‡ è¿‡ç‚¹q åŠå¾„r1çš„åœ†
     int getcircle(line u,point q,double r1,circle &c1,circle &c2)
     {
         double dis=u.dispointtoline(q);
@@ -445,7 +445,7 @@ struct circle
         c2=circle(p2,r1);
         return 2;
     }
-    //Í¬Ê±ÓëÖ±Ïßu,vÏàÇĞ °ë¾¶r1µÄÔ²
+    //åŒæ—¶ä¸ç›´çº¿u,vç›¸åˆ‡ åŠå¾„r1çš„åœ†
     int getcircle(line u,line v,double r1,circle &c1,circle &c2,circle &c3,circle &c4)
     {
         if (u.parallel(v))return 0;
@@ -460,7 +460,7 @@ struct circle
         c4.p=u2.crosspoint(v2);
         return 4;
     }
-    //Í¬Ê±Óë²»Ïà½»Ô²cx,cyÏàÇĞ °ë¾¶Îªr1µÄÔ²
+    //åŒæ—¶ä¸ä¸ç›¸äº¤åœ†cx,cyç›¸åˆ‡ åŠå¾„ä¸ºr1çš„åœ†
     int getcircle(circle cx,circle cy,double r1,circle&c1,circle&c2)
     {
         circle x(cx.p,r1+cx.r),y(cy.p,r1+cy.r);
@@ -469,7 +469,7 @@ struct circle
         c1.r=c2.r=r1;
         return t;
     }
-    int pointcrossline(line v,point &p1,point &p2)//ÇóÓëÏß¶Î½»ÒªÏÈÅĞ¶Ïrelationseg
+    int pointcrossline(line v,point &p1,point &p2)//æ±‚ä¸çº¿æ®µäº¤è¦å…ˆåˆ¤æ–­relationseg
     {
         if (!(*this).relationline(v))return 0;
         point a=v.lineprog(p);
@@ -485,11 +485,11 @@ struct circle
         p2=a.add(v.b.sub(v.a).trunc(d));
         return 2;
     }
-    //5 ÏàÀë
-    //4 ÍâÇĞ
-    //3 Ïà½»
-    //2 ÄÚÇĞ
-    //1 ÄÚº¬
+    //5 ç›¸ç¦»
+    //4 å¤–åˆ‡
+    //3 ç›¸äº¤
+    //2 å†…åˆ‡
+    //1 å†…å«
     int relationcircle(circle v)
     {
         double d=p.distance(v.p);
@@ -515,7 +515,7 @@ struct circle
         }
         return 2;
     }
-    //¹ıÒ»µã×öÔ²µÄÇĞÏß (ÏÈÅĞ¶ÏµãºÍÔ²¹ØÏµ)
+    //è¿‡ä¸€ç‚¹åšåœ†çš„åˆ‡çº¿ (å…ˆåˆ¤æ–­ç‚¹å’Œåœ†å…³ç³»)
     int tangentline(point q,line &u,line &v)
     {
         int x=relation(q);
@@ -597,6 +597,7 @@ struct polygon
     {
         p[n++]=q;
     }
+    //æ³¨æ„ï¼šç‚¹å¿…é¡»æŒ‰é¡ºåºè¯»å…¥ï¼Œå¦åˆ™åœ¨getlineçš„æ—¶å€™ä¼šæ··ä¹±æ‰
     void getline()
     {
         for (int i=0;i<n;i++)
@@ -666,10 +667,10 @@ struct polygon
         }
         return 1;
     }
-    //3 µãÉÏ
-    //2 ±ßÉÏ
-    //1 ÄÚ²¿
-    //0 Íâ²¿
+    //3 ç‚¹ä¸Š
+    //2 è¾¹ä¸Š
+    //1 å†…éƒ¨
+    //0 å¤–éƒ¨
     int relationpoint(point q)
     {
         int i,j;
@@ -694,9 +695,9 @@ struct polygon
         }
         return cnt!=0;
     }
-    //1 ÔÚ¶à±ßĞÎÄÚ³¤¶ÈÎªÕı
-    //2 Ïà½»»òÓë±ßÆ½ĞĞ
-    //0 ÎŞÈÎºÎ½»µã
+    //1 åœ¨å¤šè¾¹å½¢å†…é•¿åº¦ä¸ºæ­£
+    //2 ç›¸äº¤æˆ–ä¸è¾¹å¹³è¡Œ
+    //0 æ— ä»»ä½•äº¤ç‚¹
     int relationline(line u)
     {
         int i,j,k=0;
@@ -732,8 +733,8 @@ struct polygon
         }
         return 2;
     }
-    //Ö±ÏßuÇĞ¸îÍ¹¶à±ßĞÎ×ó²à
-    //×¢ÒâÖ±Ïß·½Ïò
+    //ç›´çº¿uåˆ‡å‰²å‡¸å¤šè¾¹å½¢å·¦ä¾§
+    //æ³¨æ„ç›´çº¿æ–¹å‘
     void convexcut(line u,polygon &po)
     {
         int i,j,k;
@@ -767,7 +768,7 @@ struct polygon
         }
         return fabs(sum)/2;
     }
-    bool getdir()//1´ú±íÄæÊ±Õë 0´ú±íË³Ê±Õë
+    bool getdir()//1ä»£è¡¨é€†æ—¶é’ˆ 0ä»£è¡¨é¡ºæ—¶é’ˆ
     {
         double sum=0;
         int i;
@@ -819,10 +820,10 @@ struct polygon
         }
         return fabs(ans);
     }
-    //¶à±ßĞÎºÍÔ²¹ØÏµ
-    //0 Ò»²¿·ÖÔÚÔ²Íâ
-    //1 ÓëÔ²Ä³Ìõ±ßÏàÇĞ
-    //2 ÍêÈ«ÔÚÔ²ÄÚ
+    //å¤šè¾¹å½¢å’Œåœ†å…³ç³»
+    //0 ä¸€éƒ¨åˆ†åœ¨åœ†å¤–
+    //1 ä¸åœ†æŸæ¡è¾¹ç›¸åˆ‡
+    //2 å®Œå…¨åœ¨åœ†å†…
     int relationcircle(circle c)
     {
         getline();
@@ -868,7 +869,7 @@ struct polygon
             }
         }
     }
-    circle mincircle()//µã¼¯×îĞ¡Ô²¸²¸Ç
+    circle mincircle()//ç‚¹é›†æœ€å°åœ†è¦†ç›–
     {
         random_shuffle(p,p+n);
         point tri[4];
@@ -876,7 +877,7 @@ struct polygon
         solve(n,0,tri,c);
         return c;
     }
-    int circlecover(double r)//µ¥Î»Ô²¸²¸Ç
+    int circlecover(double r)//å•ä½åœ†è¦†ç›–
     {
         int ans=0,i,j;
         vector<pair<double,int> >v;
@@ -907,7 +908,7 @@ struct polygon
         }
         return ans+1;
     }
-    int pointinpolygon(point q)//µãÔÚÍ¹¶à±ßĞÎÄÚ²¿µÄÅĞ¶¨
+    int pointinpolygon(point q)//ç‚¹åœ¨å‡¸å¤šè¾¹å½¢å†…éƒ¨çš„åˆ¤å®š
     {
         if (getdir())reverse(p,p+n);
         if (dblcmp(q.sub(p[0]).det(p[n-1].sub(p[0])))==0)
@@ -944,8 +945,8 @@ struct polygon
 
 
     //ADD
-    //Ö±ÏßÇĞÍ¹¶à±ßĞÎ
-    //¶à±ßĞÎÊÇÄæÊ±ÕëµÄ£¬ÔÚq1q2µÄ×ó²à
+    //ç›´çº¿åˆ‡å‡¸å¤šè¾¹å½¢
+    //å¤šè¾¹å½¢æ˜¯é€†æ—¶é’ˆçš„ï¼Œåœ¨q1q2çš„å·¦ä¾§
     //HDU3982
     vector<point> convexcut(const vector<point> &ps,point q1,point q2)
     {
@@ -1042,7 +1043,7 @@ const int maxn=500;
 struct circles
 {
     circle c[maxn];
-    double ans[maxn];//ans[i]±íÊ¾±»¸²¸ÇÁËi´ÎµÄÃæ»ı
+    double ans[maxn];//ans[i]è¡¨ç¤ºè¢«è¦†ç›–äº†iæ¬¡çš„é¢ç§¯
     double pre[maxn];
     int n;
     circles(){}
@@ -1055,7 +1056,7 @@ struct circles
         if (x.relationcircle(y)!=1)return 0;
         return dblcmp(x.r-y.r)<=0?1:0;
     }
-    void init_or()//Ô²µÄÃæ»ı²¢È¥µôÄÚº¬µÄÔ²
+    void init_or()//åœ†çš„é¢ç§¯å¹¶å»æ‰å†…å«çš„åœ†
     {
         int i,j,k=0;
         bool mark[maxn]={0};
@@ -1070,7 +1071,7 @@ struct circles
         for (i=0;i<n;i++)if (!mark[i])c[k++]=c[i];
         n=k;
     }
-    void init_and()//Ô²µÄÃæ»ı½»È¥µôÄÚº¬µÄÔ²
+    void init_and()//åœ†çš„é¢ç§¯äº¤å»æ‰å†…å«çš„åœ†
     {
         int i,j,k=0;
         bool mark[maxn]={0};
@@ -1153,7 +1154,7 @@ struct halfplane:public line
 {
     double angle;
     halfplane(){}
-    //±íÊ¾ÏòÁ¿ a->bÄæÊ±Õë(×ó²à)µÄ°ëÆ½Ãæ
+    //è¡¨ç¤ºå‘é‡ a->bé€†æ—¶é’ˆ(å·¦ä¾§)çš„åŠå¹³é¢
     halfplane(point _a,point _b)
     {
         a=_a;
@@ -1344,7 +1345,7 @@ struct line3
     {
         return a.add(b.sub(a).trunc(b.sub(a).dot(p.sub(a))/b.distance(a)));
     }
-    point3 rotate(point3 p,double ang)//pÈÆ´ËÏòÁ¿ÄæÊ±Õëarg½Ç¶È
+    point3 rotate(point3 p,double ang)//pç»•æ­¤å‘é‡é€†æ—¶é’ˆargè§’åº¦
     {
         if (dblcmp((p.sub(a).det(p.sub(b)).len()))==0)return p;
         point3 f1=b.sub(a).det(p.sub(a));
@@ -1396,14 +1397,14 @@ struct plane
     {
         return b.sub(a).det(c.sub(a));
     }
-    bool pointonplane(point3 p)//µãÊÇ·ñÔÚÆ½ÃæÉÏ
+    bool pointonplane(point3 p)//ç‚¹æ˜¯å¦åœ¨å¹³é¢ä¸Š
     {
         return dblcmp(p.sub(a).dot(o))==0;
     }
-    //0 ²»ÔÚ
-    //1 ÔÚ±ß½çÉÏ
-    //2 ÔÚÄÚ²¿
-    int pointontriangle(point3 p)//µãÊÇ·ñÔÚ¿Õ¼äÈı½ÇĞÎabcÉÏ
+    //0 ä¸åœ¨
+    //1 åœ¨è¾¹ç•Œä¸Š
+    //2 åœ¨å†…éƒ¨
+    int pointontriangle(point3 p)//ç‚¹æ˜¯å¦åœ¨ç©ºé—´ä¸‰è§’å½¢abcä¸Š
     {
         if (!pointonplane(p))return 0;
         double s=a.sub(b).det(c.sub(b)).len();
@@ -1414,31 +1415,31 @@ struct plane
         if (dblcmp(s1)&&dblcmp(s2)&&dblcmp(s3))return 2;
         return 1;
     }
-    //ÅĞ¶ÏÁ½Æ½Ãæ¹ØÏµ
-    //0 Ïà½»
-    //1 Æ½ĞĞµ«²»ÖØºÏ
-    //2 ÖØºÏ
+    //åˆ¤æ–­ä¸¤å¹³é¢å…³ç³»
+    //0 ç›¸äº¤
+    //1 å¹³è¡Œä½†ä¸é‡åˆ
+    //2 é‡åˆ
     bool relationplane(plane f)
     {
         if (dblcmp(o.det(f.o).len()))return 0;
         if (pointonplane(f.a))return 2;
         return 1;
     }
-    double angleplane(plane f)//Á½Æ½Ãæ¼Ğ½Ç
+    double angleplane(plane f)//ä¸¤å¹³é¢å¤¹è§’
     {
         return acos(o.dot(f.o)/(o.len()*f.o.len()));
     }
-    double dispoint(point3 p)//µãµ½Æ½Ãæ¾àÀë
+    double dispoint(point3 p)//ç‚¹åˆ°å¹³é¢è·ç¦»
     {
         return fabs(p.sub(a).dot(o)/o.len());
     }
-    point3 pttoplane(point3 p)//µãµ½Æ½Ãæ×î½üµã
+    point3 pttoplane(point3 p)//ç‚¹åˆ°å¹³é¢æœ€è¿‘ç‚¹
     {
         line3 u=line3(p,p.add(o));
         crossline(u,p);
         return p;
     }
-    int crossline(line3 u,point3 &p)//Æ½ÃæºÍÖ±ÏßµÄ½»µã
+    int crossline(line3 u,point3 &p)//å¹³é¢å’Œç›´çº¿çš„äº¤ç‚¹
     {
         double x=o.dot(u.b.sub(a));
         double y=o.dot(u.a.sub(a));
@@ -1447,7 +1448,7 @@ struct plane
         p=u.a.mul(x).sub(u.b.mul(y)).div(d);
         return 1;
     }
-    int crossplane(plane f,line3 &u)//Æ½ÃæºÍÆ½ÃæµÄ½»Ïß
+    int crossplane(plane f,line3 &u)//å¹³é¢å’Œå¹³é¢çš„äº¤çº¿
     {
         point3 oo=o.det(f.o);
         point3 v=o.det(oo);
